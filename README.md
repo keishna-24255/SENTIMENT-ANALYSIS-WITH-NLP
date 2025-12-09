@@ -78,3 +78,4 @@ Confusion Matrix
 
 These metrics help us understand how well the system predicts different sentiments.
 #OUTPUT
+<img width="1222" height="626" alt="Image" src="https://github.com/user-attachments/assets/cd5fd74e-4f8a-4fcf-b439-a8cf74aa6dc3" />
