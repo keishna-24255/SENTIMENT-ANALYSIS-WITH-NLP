@@ -1,0 +1,77 @@
+import pandas as pd
+import numpy as np
+import re
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+data = {
+    "review": [
+        "The product is excellent, I loved it!",
+        "Very bad quality, waste of money.",
+        "Amazing experience, will buy again!",
+        "Worst product ever.",
+        "Good value for the price.",
+        "Terrible, totally disappointed.",
+        "Superb! Highly recommended.",
+        "Not worth the price.",
+        "I am very happy with this purchase.",
+        "I hate this product."
+    ],
+    "sentiment": ["positive", "negative", "positive", "negative", "positive",
+                  "negative", "positive", "negative", "positive", "negative"]
+}
+
+df = pd.DataFrame(data)
+print("Sample Dataset:")
+display(df)
+def clean_text(text):
+    text = text.lower()                         
+    text = re.sub(r'[^a-zA-Z\s]', '', text)     
+    text = text.strip()                          
+    return text
+
+df["clean_review"] = df["review"].apply(clean_text)
+
+print("After Cleaning:")
+display(df)
+
+X = df["clean_review"]
+y = df["sentiment"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+tfidf = TfidfVectorizer()
+X_train_tfidf = tfidf.fit_transform(X_train)
+X_test_tfidf = tfidf.transform(X_test)
+
+model = LogisticRegression()
+model.fit(X_train_tfidf, y_train)
+
+y_pred = model.predict(X_test_tfidf)
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nModel Accuracy:", accuracy)
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, cmap="Blues", fmt="d")
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+sample = ["I really love this product!"]
+sample_clean = clean_text(sample[0])
+sample_tfidf = tfidf.transform([sample_clean])
+
+print("\nCustom Review:", sample[0])
+print("Predicted Sentiment:", model.predict(sample_tfidf)[0])
